@@ -1,8 +1,7 @@
+import { serverApi } from '@/lib/server-api'
+
 async function getOverview() {
-  const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'
-  const res = await fetch(`${apiBase}/admin/embeddings/overview`, { cache: 'no-store' })
-  if (!res.ok) throw new Error('Failed to load embeddings overview')
-  return res.json()
+  return serverApi('/admin/embeddings/overview')
 }
 
 export default async function EmbeddingsPage() {
