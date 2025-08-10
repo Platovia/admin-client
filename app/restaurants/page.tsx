@@ -1,4 +1,5 @@
 import { serverApi } from '@/lib/server-api'
+import { ToggleActiveButton } from '@/components/admin/toggle-active-button'
 
 async function getRestaurants() {
   return serverApi('/admin/restaurants')
@@ -20,6 +21,7 @@ export default async function RestaurantsPage() {
               <th className="text-left p-3 font-medium">Name</th>
               <th className="text-left p-3 font-medium">Status</th>
               <th className="text-left p-3 font-medium">Company</th>
+              <th className="text-left p-3 font-medium">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -28,6 +30,9 @@ export default async function RestaurantsPage() {
                 <td className="p-3">{r.name}</td>
                 <td className="p-3">{r.is_active ? 'active' : 'inactive'}</td>
                 <td className="p-3">{r.company_id || '—'}</td>
+                <td className="p-3">
+                  <ToggleActiveButton resource="restaurants" id={r.id} isActive={r.is_active} />
+                </td>
               </tr>
             ))}
           </tbody>
