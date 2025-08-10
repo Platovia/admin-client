@@ -1,59 +1,48 @@
 import { ArrowUpRight, Users, Building2, UtensilsCrossed, Activity } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
-async function getMe() {
+async function getStats() {
   const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'
-  const res = await fetch(`${apiBase}/auth/me`, { cache: 'no-store', headers: { 'Content-Type': 'application/json' } })
+  const res = await fetch(`${apiBase}/admin/stats`, { cache: 'no-store' })
   if (!res.ok) return null
   return res.json()
 }
 
 export default async function DashboardPage() {
-  const me = await getMe()
+  const stats = await getStats()
   return (
     <div className="space-y-6">
-      <div className="text-sm text-muted-foreground">Signed in as {me?.email || '—'}</div>
       <div className="grid gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Active Restaurants</CardTitle>
-            <Building2 className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-muted-foreground">Users</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-semibold">124</div>
-            <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-              <ArrowUpRight className="h-3 w-3" /> 3.1% from last week
-            </p>
+            <div className="text-3xl font-semibold">{stats?.users ?? '—'}</div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Users</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-muted-foreground">Companies</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-semibold">2,341</div>
-            <p className="text-xs text-muted-foreground mt-1">+58 this week</p>
+            <div className="text-3xl font-semibold">{stats?.companies ?? '—'}</div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Menus Processed</CardTitle>
-            <UtensilsCrossed className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-muted-foreground">Restaurants</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-semibold">876</div>
-            <p className="text-xs text-muted-foreground mt-1">+12 today</p>
+            <div className="text-3xl font-semibold">{stats?.restaurants ?? '—'}</div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">System Health</CardTitle>
-            <Activity className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-muted-foreground">Menus</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-semibold">99.9%</div>
-            <p className="text-xs text-muted-foreground mt-1">No incidents</p>
+            <div className="text-3xl font-semibold">{stats?.menus ?? '—'}</div>
           </CardContent>
         </Card>
       </div>

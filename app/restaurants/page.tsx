@@ -1,4 +1,13 @@
-export default function RestaurantsPage() {
+async function getRestaurants() {
+  const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'
+  const res = await fetch(`${apiBase}/admin/restaurants`, { cache: 'no-store' })
+  if (!res.ok) throw new Error('Failed to load restaurants')
+  return res.json()
+}
+
+export default async function RestaurantsPage() {
+  const data = await getRestaurants()
+  const restaurants = data?.restaurants || []
   return (
     <div className="space-y-4">
       <div>
@@ -10,22 +19,16 @@ export default function RestaurantsPage() {
           <thead className="bg-muted/50">
             <tr>
               <th className="text-left p-3 font-medium">Name</th>
-              <th className="text-left p-3 font-medium">Locale</th>
-              <th className="text-left p-3 font-medium">Currency</th>
               <th className="text-left p-3 font-medium">Status</th>
+              <th className="text-left p-3 font-medium">Company</th>
             </tr>
           </thead>
           <tbody>
-            {[
-              { n: 'Resto 1', l: 'en-US', c: 'USD', s: 'active' },
-              { n: 'Resto 2', l: 'fr-FR', c: 'EUR', s: 'pending' },
-              { n: 'Resto 3', l: 'es-ES', c: 'EUR', s: 'inactive' },
-            ].map((r, i) => (
-              <tr key={i} className="border-t">
-                <td className="p-3">{r.n}</td>
-                <td className="p-3">{r.l}</td>
-                <td className="p-3">{r.c}</td>
-                <td className="p-3 capitalize">{r.s}</td>
+            {restaurants.map((r: any) => (
+              <tr key={r.id} className="border-t">
+                <td className="p-3">{r.name}</td>
+                <td className="p-3">{r.is_active ? 'active' : 'inactive'}</td>
+                <td className="p-3">{r.company_id || '—'}</td>
               </tr>
             ))}
           </tbody>

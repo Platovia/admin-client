@@ -1,4 +1,14 @@
-export default function UsersPage() {
+async function getUsers(search?: string) {
+  const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'
+  const q = search ? `?search=${encodeURIComponent(search)}` : ''
+  const res = await fetch(`${apiBase}/admin/users${q}`, { cache: 'no-store' })
+  if (!res.ok) throw new Error('Failed to load users')
+  return res.json()
+}
+
+export default async function UsersPage({ searchParams }: { searchParams?: { q?: string } }) {
+  const data = await getUsers(searchParams?.q)
+  const users = data?.users || []
   return (
     <div className="space-y-4">
       <div>
@@ -11,21 +21,15 @@ export default function UsersPage() {
             <tr>
               <th className="text-left p-3 font-medium">Name</th>
               <th className="text-left p-3 font-medium">Email</th>
-              <th className="text-left p-3 font-medium">Role</th>
               <th className="text-left p-3 font-medium">Status</th>
             </tr>
           </thead>
           <tbody>
-            {[
-              { n: 'Alice Johnson', e: 'alice@example.com', r: 'admin', s: 'active' },
-              { n: 'Bob Smith', e: 'bob@example.com', r: 'editor', s: 'active' },
-              { n: 'Eve Adams', e: 'eve@example.com', r: 'viewer', s: 'disabled' },
-            ].map((u, i) => (
-              <tr key={i} className="border-t">
-                <td className="p-3">{u.n}</td>
-                <td className="p-3 text-muted-foreground">{u.e}</td>
-                <td className="p-3">{u.r}</td>
-                <td className="p-3 capitalize">{u.s}</td>
+            {users.map((u: any) => (
+              <tr key={u.id} className="border-t">
+                <td className="p-3">{u.first_name} {u.last_name}</td>
+                <td className="p-3 text-muted-foreground">{u.email}</td>
+                <td className="p-3 capitalize">{u.is_active ? 'active' : 'disabled'}</td>
               </tr>
             ))}
           </tbody>

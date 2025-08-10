@@ -1,4 +1,13 @@
-export default function CompaniesPage() {
+async function getCompanies() {
+  const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'
+  const res = await fetch(`${apiBase}/admin/companies`, { cache: 'no-store' })
+  if (!res.ok) throw new Error('Failed to load companies')
+  return res.json()
+}
+
+export default async function CompaniesPage() {
+  const data = await getCompanies()
+  const companies = data?.companies || []
   return (
     <div className="space-y-4">
       <div>
@@ -6,10 +15,10 @@ export default function CompaniesPage() {
         <p className="text-sm text-muted-foreground">Manage companies and memberships.</p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-        {[1,2,3,4,5,6].map((i) => (
-          <div key={i} className="border rounded-lg p-4">
-            <div className="font-medium">Company #{i}</div>
-            <div className="text-sm text-muted-foreground">12 restaurants • 68 users</div>
+        {companies.map((c: any) => (
+          <div key={c.id} className="border rounded-lg p-4">
+            <div className="font-medium">{c.name}</div>
+            <div className="text-sm text-muted-foreground">{c.subscription_tier}</div>
           </div>
         ))}
       </div>

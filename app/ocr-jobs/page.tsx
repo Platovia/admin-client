@@ -1,4 +1,13 @@
-export default function OcrJobsPage() {
+async function getJobs() {
+  const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'
+  const res = await fetch(`${apiBase}/admin/ocr/jobs`, { cache: 'no-store' })
+  if (!res.ok) throw new Error('Failed to load OCR jobs')
+  return res.json()
+}
+
+export default async function OcrJobsPage() {
+  const data = await getJobs()
+  const jobs = data?.jobs || []
   return (
     <div className="space-y-4">
       <div>
@@ -10,22 +19,18 @@ export default function OcrJobsPage() {
           <thead className="bg-muted/50">
             <tr>
               <th className="text-left p-3 font-medium">Job ID</th>
-              <th className="text-left p-3 font-medium">Restaurant</th>
+              <th className="text-left p-3 font-medium">Menu</th>
               <th className="text-left p-3 font-medium">Status</th>
-              <th className="text-left p-3 font-medium">Duration</th>
+              <th className="text-left p-3 font-medium">Progress</th>
             </tr>
           </thead>
           <tbody>
-            {[
-              { id: '#101', rest: 'Resto 2', s: 'completed', d: '42s' },
-              { id: '#102', rest: 'Resto 5', s: 'running', d: '—' },
-              { id: '#103', rest: 'Resto 1', s: 'failed', d: '18s' },
-            ].map((j, i) => (
-              <tr key={i} className="border-t">
+            {jobs.map((j: any) => (
+              <tr key={j.id} className="border-t">
                 <td className="p-3">{j.id}</td>
-                <td className="p-3">{j.rest}</td>
-                <td className="p-3 capitalize">{j.s}</td>
-                <td className="p-3">{j.d}</td>
+                <td className="p-3">{j.menu_id}</td>
+                <td className="p-3 capitalize">{j.status}</td>
+                <td className="p-3">{j.progress ?? '—'}</td>
               </tr>
             ))}
           </tbody>
