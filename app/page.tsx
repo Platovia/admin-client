@@ -1,9 +1,18 @@
 import { ArrowUpRight, Users, Building2, UtensilsCrossed, Activity } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
-export default function DashboardPage() {
+async function getMe() {
+  const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'
+  const res = await fetch(`${apiBase}/auth/me`, { cache: 'no-store', headers: { 'Content-Type': 'application/json' } })
+  if (!res.ok) return null
+  return res.json()
+}
+
+export default async function DashboardPage() {
+  const me = await getMe()
   return (
     <div className="space-y-6">
+      <div className="text-sm text-muted-foreground">Signed in as {me?.email || '—'}</div>
       <div className="grid gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
