@@ -1,9 +1,8 @@
+import { serverApi } from '@/lib/server-api'
+
 async function getUsers(search?: string) {
-  const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'
   const q = search ? `?search=${encodeURIComponent(search)}` : ''
-  const res = await fetch(`${apiBase}/admin/users${q}`, { cache: 'no-store' })
-  if (!res.ok) throw new Error('Failed to load users')
-  return res.json()
+  return serverApi(`/admin/users${q}`)
 }
 
 export default async function UsersPage({ searchParams }: { searchParams?: { q?: string } }) {

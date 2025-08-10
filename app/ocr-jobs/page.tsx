@@ -1,8 +1,7 @@
+import { serverApi } from '@/lib/server-api'
+
 async function getJobs() {
-  const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'
-  const res = await fetch(`${apiBase}/admin/ocr/jobs`, { cache: 'no-store' })
-  if (!res.ok) throw new Error('Failed to load OCR jobs')
-  return res.json()
+  return serverApi('/admin/ocr/jobs')
 }
 
 export default async function OcrJobsPage() {

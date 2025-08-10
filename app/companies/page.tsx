@@ -1,8 +1,7 @@
+import { serverApi } from '@/lib/server-api'
+
 async function getCompanies() {
-  const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'
-  const res = await fetch(`${apiBase}/admin/companies`, { cache: 'no-store' })
-  if (!res.ok) throw new Error('Failed to load companies')
-  return res.json()
+  return serverApi('/admin/companies')
 }
 
 export default async function CompaniesPage() {

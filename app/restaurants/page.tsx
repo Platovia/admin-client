@@ -1,8 +1,7 @@
+import { serverApi } from '@/lib/server-api'
+
 async function getRestaurants() {
-  const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'
-  const res = await fetch(`${apiBase}/admin/restaurants`, { cache: 'no-store' })
-  if (!res.ok) throw new Error('Failed to load restaurants')
-  return res.json()
+  return serverApi('/admin/restaurants')
 }
 
 export default async function RestaurantsPage() {

@@ -1,9 +1,7 @@
+import { serverApi } from '@/lib/server-api'
+
 async function getMenus() {
-  const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'
-  console.log('apiBase', apiBase, process.env.NEXT_PUBLIC_API_URL)
-  const res = await fetch(`${apiBase}/admin/menus`, { cache: 'no-store' })
-  if (!res.ok) throw new Error('Failed to load menus')
-  return res.json()
+  return serverApi('/admin/menus')
 }
 
 export default async function MenusPage() {

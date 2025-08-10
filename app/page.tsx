@@ -1,11 +1,13 @@
 import { ArrowUpRight, Users, Building2, UtensilsCrossed, Activity } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { serverApi } from '@/lib/server-api'
 
 async function getStats() {
-  const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'
-  const res = await fetch(`${apiBase}/admin/stats`, { cache: 'no-store' })
-  if (!res.ok) return null
-  return res.json()
+  try {
+    return await serverApi('/admin/stats')
+  } catch {
+    return null
+  }
 }
 
 export default async function DashboardPage() {

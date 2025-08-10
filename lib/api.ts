@@ -47,6 +47,7 @@ async function tryRefresh(): Promise<boolean> {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ refresh_token: refreshToken }),
+    credentials: 'include',
   })
   if (!res.ok) return false
   const data = await res.json()
@@ -62,7 +63,8 @@ async function safeText(res: Response) {
 }
 
 export async function login(email: string, password: string) {
-  const res = await fetch(`${API_BASE_URL}/auth/login`, {
+  // Call internal Next route to avoid CORS
+  const res = await fetch(`/api/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password }),
