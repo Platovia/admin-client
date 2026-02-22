@@ -1,3 +1,4 @@
+import { notFound } from 'next/navigation'
 import { serverApi } from '@/lib/server-api'
 import { Breadcrumb } from '@/components/admin/breadcrumb'
 import { DetailField, DetailGrid } from '@/components/admin/detail-field'
@@ -8,12 +9,17 @@ import { formatDateTime } from '@/lib/utils'
 import { MenuDetailClient } from './menu-detail-client'
 
 async function getMenu(id: string) {
-  return serverApi(`/admin/menus/${id}`)
+  try {
+    return await serverApi(`/admin/menus/${id}`)
+  } catch {
+    return null
+  }
 }
 
 export default async function MenuDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const menu = (await getMenu(id)) as any
+  if (!menu) notFound()
 
   return (
     <div className="space-y-6">

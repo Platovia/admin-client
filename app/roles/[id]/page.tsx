@@ -1,3 +1,4 @@
+import { notFound } from 'next/navigation'
 import { serverApi } from '@/lib/server-api'
 import { Breadcrumb } from '@/components/admin/breadcrumb'
 import { DetailField, DetailGrid } from '@/components/admin/detail-field'
@@ -8,12 +9,17 @@ import { formatDateTime } from '@/lib/utils'
 import { RoleActions } from './role-actions'
 
 async function getRole(id: string) {
-  return serverApi(`/admin/roles/${id}`)
+  try {
+    return await serverApi(`/admin/roles/${id}`)
+  } catch {
+    return null
+  }
 }
 
 export default async function RoleDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const role = (await getRole(id)) as any
+  if (!role) notFound()
 
   return (
     <div className="space-y-6">

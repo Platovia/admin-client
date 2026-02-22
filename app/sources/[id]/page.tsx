@@ -1,3 +1,4 @@
+import { notFound } from 'next/navigation'
 import { serverApi } from '@/lib/server-api'
 import { Breadcrumb } from '@/components/admin/breadcrumb'
 import { DetailField, DetailGrid } from '@/components/admin/detail-field'
@@ -7,12 +8,17 @@ import { formatDateTime } from '@/lib/utils'
 import { SourceActions } from './source-actions'
 
 async function getSource(id: string) {
-  return serverApi(`/admin/sources/${id}`)
+  try {
+    return await serverApi(`/admin/sources/${id}`)
+  } catch {
+    return null
+  }
 }
 
 export default async function SourceDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const source = (await getSource(id)) as any
+  if (!source) notFound()
 
   return (
     <div className="space-y-6">

@@ -1,3 +1,4 @@
+import { notFound } from 'next/navigation'
 import { serverApi } from '@/lib/server-api'
 import { Breadcrumb } from '@/components/admin/breadcrumb'
 import { DetailField, DetailGrid } from '@/components/admin/detail-field'
@@ -8,12 +9,17 @@ import { formatDateTime } from '@/lib/utils'
 import { CompanyDetailClient } from './company-detail-client'
 
 async function getCompany(id: string) {
-  return serverApi(`/admin/companies/${id}`)
+  try {
+    return await serverApi(`/admin/companies/${id}`)
+  } catch {
+    return null
+  }
 }
 
 export default async function CompanyDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const company = (await getCompany(id)) as any
+  if (!company) notFound()
 
   return (
     <div className="space-y-6">

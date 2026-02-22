@@ -12,14 +12,18 @@ interface SearchParams {
 }
 
 async function getMenus(params: SearchParams) {
-  const query = new URLSearchParams()
-  if (params.page) query.set('page', params.page)
-  if (params.search) query.set('search', params.search)
-  if (params.sort_by) query.set('sort_by', params.sort_by)
-  if (params.sort_order) query.set('sort_order', params.sort_order)
-  if (params.restaurant_id) query.set('restaurant_id', params.restaurant_id)
-  query.set('page_size', '25')
-  return serverApi(`/admin/menus?${query.toString()}`)
+  try {
+    const query = new URLSearchParams()
+    if (params.page) query.set('page', params.page)
+    if (params.search) query.set('search', params.search)
+    if (params.sort_by) query.set('sort_by', params.sort_by)
+    if (params.sort_order) query.set('sort_order', params.sort_order)
+    if (params.restaurant_id) query.set('restaurant_id', params.restaurant_id)
+    query.set('page_size', '25')
+    return await serverApi(`/admin/menus?${query.toString()}`)
+  } catch {
+    return null
+  }
 }
 
 export default async function MenusPage({

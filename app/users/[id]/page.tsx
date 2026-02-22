@@ -1,3 +1,4 @@
+import { notFound } from 'next/navigation'
 import { serverApi } from '@/lib/server-api'
 import { Breadcrumb } from '@/components/admin/breadcrumb'
 import { DetailField, DetailGrid } from '@/components/admin/detail-field'
@@ -8,12 +9,17 @@ import { formatDateTime } from '@/lib/utils'
 import { UserActions } from './user-actions'
 
 async function getUser(id: string) {
-  return serverApi(`/admin/users/${id}`)
+  try {
+    return await serverApi(`/admin/users/${id}`)
+  } catch {
+    return null
+  }
 }
 
 export default async function UserDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const user = (await getUser(id)) as any
+  if (!user) notFound()
 
   return (
     <div className="space-y-6">

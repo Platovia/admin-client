@@ -1,3 +1,4 @@
+import { notFound } from 'next/navigation'
 import { serverApi } from '@/lib/server-api'
 import { Breadcrumb } from '@/components/admin/breadcrumb'
 import { DetailField, DetailGrid } from '@/components/admin/detail-field'
@@ -7,7 +8,11 @@ import { RelatedTable } from '@/components/admin/related-table'
 import { formatDateTime, truncateId } from '@/lib/utils'
 
 async function getJob(id: string) {
-  return serverApi(`/admin/ocr/jobs/${id}`)
+  try {
+    return await serverApi(`/admin/ocr/jobs/${id}`)
+  } catch {
+    return null
+  }
 }
 
 const statusVariant = (status: string) => {
@@ -23,6 +28,7 @@ const statusVariant = (status: string) => {
 export default async function OcrJobDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const job = (await getJob(id)) as any
+  if (!job) notFound()
 
   const progress = job.total_images > 0
     ? Math.round(((job.processed_images || 0) / job.total_images) * 100)

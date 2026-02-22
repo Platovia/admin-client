@@ -10,12 +10,16 @@ interface SearchParams {
 }
 
 async function getTokens(params: SearchParams) {
-  const query = new URLSearchParams()
-  if (params.page) query.set('page', params.page)
-  if (params.sort_by) query.set('sort_by', params.sort_by)
-  if (params.sort_order) query.set('sort_order', params.sort_order)
-  query.set('page_size', '25')
-  return serverApi(`/admin/qr-tokens?${query.toString()}`)
+  try {
+    const query = new URLSearchParams()
+    if (params.page) query.set('page', params.page)
+    if (params.sort_by) query.set('sort_by', params.sort_by)
+    if (params.sort_order) query.set('sort_order', params.sort_order)
+    query.set('page_size', '25')
+    return await serverApi(`/admin/qr-tokens?${query.toString()}`)
+  } catch {
+    return null
+  }
 }
 
 export default async function QrTokensPage({

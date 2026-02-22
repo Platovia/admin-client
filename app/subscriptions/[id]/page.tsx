@@ -1,3 +1,4 @@
+import { notFound } from 'next/navigation'
 import { serverApi } from '@/lib/server-api'
 import { Breadcrumb } from '@/components/admin/breadcrumb'
 import { DetailField, DetailGrid } from '@/components/admin/detail-field'
@@ -6,12 +7,17 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatDateTime } from '@/lib/utils'
 
 async function getSubscription(id: string) {
-  return serverApi(`/admin/subscriptions/${id}`)
+  try {
+    return await serverApi(`/admin/subscriptions/${id}`)
+  } catch {
+    return null
+  }
 }
 
 export default async function SubscriptionDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const sub = (await getSubscription(id)) as any
+  if (!sub) notFound()
 
   return (
     <div className="space-y-6">

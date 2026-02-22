@@ -1,3 +1,4 @@
+import { notFound } from 'next/navigation'
 import { serverApi } from '@/lib/server-api'
 import { Breadcrumb } from '@/components/admin/breadcrumb'
 import { DetailField, DetailGrid } from '@/components/admin/detail-field'
@@ -6,12 +7,17 @@ import { formatDateTime, truncateId } from '@/lib/utils'
 import { ChatSessionActions } from './chat-session-actions'
 
 async function getSession(id: string) {
-  return serverApi(`/admin/chat/sessions/${id}`)
+  try {
+    return await serverApi(`/admin/chat/sessions/${id}`)
+  } catch {
+    return null
+  }
 }
 
 export default async function ChatSessionDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const session = (await getSession(id)) as any
+  if (!session) notFound()
 
   return (
     <div className="space-y-6">

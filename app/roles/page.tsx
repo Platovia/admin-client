@@ -3,7 +3,11 @@ import { PageHeader } from '@/components/admin/page-header'
 import { RolesTable } from './roles-table'
 
 async function getRoles() {
-  return serverApi('/admin/roles')
+  try {
+    return await serverApi('/admin/roles')
+  } catch {
+    return null
+  }
 }
 
 export default async function RolesPage() {

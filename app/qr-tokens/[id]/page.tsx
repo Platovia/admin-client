@@ -1,3 +1,4 @@
+import { notFound } from 'next/navigation'
 import { serverApi } from '@/lib/server-api'
 import { Breadcrumb } from '@/components/admin/breadcrumb'
 import { DetailField, DetailGrid } from '@/components/admin/detail-field'
@@ -7,12 +8,17 @@ import { formatDateTime, truncateId } from '@/lib/utils'
 import { QrTokenActions } from './qr-token-actions'
 
 async function getToken(id: string) {
-  return serverApi(`/admin/qr-tokens/${id}`)
+  try {
+    return await serverApi(`/admin/qr-tokens/${id}`)
+  } catch {
+    return null
+  }
 }
 
 export default async function QrTokenDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const token = (await getToken(id)) as any
+  if (!token) notFound()
 
   return (
     <div className="space-y-6">

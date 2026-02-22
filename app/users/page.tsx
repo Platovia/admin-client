@@ -14,14 +14,18 @@ interface SearchParams {
 }
 
 async function getUsers(params: SearchParams) {
-  const query = new URLSearchParams()
-  if (params.page) query.set('page', params.page)
-  if (params.search) query.set('search', params.search)
-  if (params.sort_by) query.set('sort_by', params.sort_by)
-  if (params.sort_order) query.set('sort_order', params.sort_order)
-  if (params.status) query.set('status', params.status)
-  query.set('page_size', '25')
-  return serverApi(`/admin/users?${query.toString()}`)
+  try {
+    const query = new URLSearchParams()
+    if (params.page) query.set('page', params.page)
+    if (params.search) query.set('search', params.search)
+    if (params.sort_by) query.set('sort_by', params.sort_by)
+    if (params.sort_order) query.set('sort_order', params.sort_order)
+    if (params.status) query.set('status', params.status)
+    query.set('page_size', '25')
+    return await serverApi(`/admin/users?${query.toString()}`)
+  } catch {
+    return null
+  }
 }
 
 async function getMe() {
