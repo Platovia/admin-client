@@ -1,6 +1,8 @@
-import { ArrowUpRight, Users, Building2, UtensilsCrossed, Activity } from 'lucide-react'
+import { ArrowUpRight, Users, Building2, Store, PanelsTopLeft, BarChart3, MessageSquare } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 import { serverApi } from '@/lib/server-api'
+import Link from 'next/link'
 
 async function getStats() {
   try {
@@ -10,78 +12,124 @@ async function getStats() {
   }
 }
 
+async function getRecentUsers() {
+  try {
+    const data = await serverApi('/admin/users?page_size=5&sort_by=created_at&sort_order=desc')
+    return (data as any)?.users || []
+  } catch {
+    return []
+  }
+}
+
+async function getRecentCompanies() {
+  try {
+    const data = await serverApi('/admin/companies?page_size=5&sort_by=created_at&sort_order=desc')
+    return (data as any)?.companies || []
+  } catch {
+    return []
+  }
+}
+
 export default async function DashboardPage() {
-  const stats = await getStats()
+  const [stats, recentUsers, recentCompanies] = await Promise.all([
+    getStats(),
+    getRecentUsers(),
+    getRecentCompanies(),
+  ])
+
+  const kpis = [
+    { label: 'Users', value: (stats as any)?.users ?? '—', icon: Users, href: '/users' },
+    { label: 'Companies', value: (stats as any)?.companies ?? '—', icon: Building2, href: '/companies' },
+    { label: 'Restaurants', value: (stats as any)?.restaurants ?? '—', icon: Store, href: '/restaurants' },
+    { label: 'Menus', value: (stats as any)?.menus ?? '—', icon: PanelsTopLeft, href: '/menus' },
+  ]
+
   return (
     <div className="space-y-6">
-      <div className="grid gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-semibold">Dashboard</h2>
+          <p className="text-sm text-muted-foreground">Platform overview and quick stats.</p>
+        </div>
+        <Link
+          href="/analytics"
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+        >
+          <BarChart3 className="h-4 w-4" /> View Analytics <ArrowUpRight className="h-3.5 w-3.5" />
+        </Link>
+      </div>
+
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-4">
+        {kpis.map((kpi) => (
+          <Link key={kpi.label} href={kpi.href}>
+            <Card className="hover:border-primary/50 transition-colors cursor-pointer">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">{kpi.label}</CardTitle>
+                <kpi.icon className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-semibold">{kpi.value}</div>
+              </CardContent>
+            </Card>
+          </Link>
+        ))}
+      </div>
+
+      <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Users</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="text-sm">Recent Users</CardTitle>
+            <Link href="/users" className="text-xs text-primary hover:underline">View all</Link>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-semibold">{stats?.users ?? '—'}</div>
+            {recentUsers.length > 0 ? (
+              <div className="space-y-3">
+                {recentUsers.map((u: any) => (
+                  <Link key={u.id} href={`/users/${u.id}`} className="flex items-center justify-between text-sm hover:bg-muted/50 -mx-2 px-2 py-1 rounded-md">
+                    <div>
+                      <span className="font-medium">{u.first_name} {u.last_name}</span>
+                      <span className="text-muted-foreground ml-2">{u.email}</span>
+                    </div>
+                    <Badge variant={u.is_active ? "success" : "secondary"} className="text-xs">
+                      {u.is_active ? "Active" : "Inactive"}
+                    </Badge>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">No users yet.</p>
+            )}
           </CardContent>
         </Card>
+
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Companies</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="text-sm">Recent Companies</CardTitle>
+            <Link href="/companies" className="text-xs text-primary hover:underline">View all</Link>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-semibold">{stats?.companies ?? '—'}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Restaurants</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-semibold">{stats?.restaurants ?? '—'}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Menus</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-semibold">{stats?.menus ?? '—'}</div>
+            {recentCompanies.length > 0 ? (
+              <div className="space-y-3">
+                {recentCompanies.map((c: any) => (
+                  <Link key={c.id} href={`/companies/${c.id}`} className="flex items-center justify-between text-sm hover:bg-muted/50 -mx-2 px-2 py-1 rounded-md">
+                    <div>
+                      <span className="font-medium">{c.name}</span>
+                      <Badge variant={c.subscription_tier === "paid" ? "info" : "secondary"} className="ml-2 text-xs">
+                        {c.subscription_tier}
+                      </Badge>
+                    </div>
+                    <Badge variant={c.is_active ? "success" : "secondary"} className="text-xs">
+                      {c.is_active ? "Active" : "Inactive"}
+                    </Badge>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">No companies yet.</p>
+            )}
           </CardContent>
         </Card>
       </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Activity</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-hidden rounded-md border">
-            <table className="w-full text-sm">
-              <thead className="bg-muted/50">
-                <tr>
-                  <th className="text-left p-3 font-medium">Time</th>
-                  <th className="text-left p-3 font-medium">User</th>
-                  <th className="text-left p-3 font-medium">Action</th>
-                  <th className="text-left p-3 font-medium">Target</th>
-                </tr>
-              </thead>
-              <tbody>
-                {[
-                  { t: '10:22', u: 'alice', a: 'Approved menu', tgt: 'Resto #54' },
-                  { t: '10:05', u: 'bob', a: 'Updated tags', tgt: 'Menu Item #332' },
-                  { t: '09:44', u: 'eve', a: 'Restarted OCR job', tgt: 'Job #88421' },
-                ].map((row, i) => (
-                  <tr key={i} className="border-t">
-                    <td className="p-3 text-muted-foreground">{row.t}</td>
-                    <td className="p-3">{row.u}</td>
-                    <td className="p-3">{row.a}</td>
-                    <td className="p-3">{row.tgt}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   )
 }

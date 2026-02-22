@@ -19,9 +19,15 @@ export default function LoginPage() {
     try {
       await login(email, password)
       const redirect = sp.get('redirect') || '/'
-      router.replace(redirect)
+      window.location.href = redirect
     } catch (err: any) {
-      setError(err?.message || 'Login failed')
+      const msg = err?.message || 'Login failed'
+      try {
+        const parsed = JSON.parse(msg)
+        setError(parsed.detail || msg)
+      } catch {
+        setError(msg)
+      }
     } finally {
       setLoading(false)
     }

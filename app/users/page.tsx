@@ -1,9 +1,27 @@
+import { Suspense } from 'react'
 import { serverApi } from '@/lib/server-api'
-import { ToggleActiveButton } from '@/components/admin/toggle-active-button'
+import { PageHeader } from '@/components/admin/page-header'
+import { Badge } from '@/components/ui/badge'
+import { formatDate } from '@/lib/utils'
+import { UsersTable } from './users-table'
 
-async function getUsers(search?: string) {
-  const q = search ? `?search=${encodeURIComponent(search)}` : ''
-  return serverApi(`/admin/users${q}`)
+interface SearchParams {
+  page?: string
+  search?: string
+  sort_by?: string
+  sort_order?: string
+  status?: string
+}
+
+async function getUsers(params: SearchParams) {
+  const query = new URLSearchParams()
+  if (params.page) query.set('page', params.page)
+  if (params.search) query.set('search', params.search)
+  if (params.sort_by) query.set('sort_by', params.sort_by)
+  if (params.sort_order) query.set('sort_order', params.sort_order)
+  if (params.status) query.set('status', params.status)
+  query.set('page_size', '25')
+  return serverApi(`/admin/users?${query.toString()}`)
 }
 
 async function getMe() {
@@ -14,49 +32,36 @@ async function getMe() {
   }
 }
 
-export default async function UsersPage({ searchParams }: { searchParams?: { q?: string } }) {
-  const [data, me] = await Promise.all([getUsers(searchParams?.q), getMe()])
-  const users = data?.users || []
-  const currentUserId = me?.id
+export default async function UsersPage({
+  searchParams,
+}: {
+  searchParams?: Promise<SearchParams>
+}) {
+  const params = (await searchParams) || {}
+  const [data, me] = await Promise.all([getUsers(params), getMe()])
+  const users = (data as any)?.users || []
+  const pagination = {
+    page: (data as any)?.page || 1,
+    totalPages: (data as any)?.total_pages || 1,
+    total: (data as any)?.total || 0,
+    pageSize: (data as any)?.page_size || 25,
+  }
+
   return (
     <div className="space-y-4">
-      <div>
-        <h2 className="text-xl font-semibold">Users</h2>
-        <p className="text-sm text-muted-foreground">Manage application users and roles.</p>
-      </div>
-      <div className="overflow-hidden rounded-md border">
-        <table className="w-full text-sm">
-          <thead className="bg-muted/50">
-            <tr>
-              <th className="text-left p-3 font-medium">Name</th>
-              <th className="text-left p-3 font-medium">Email</th>
-              <th className="text-left p-3 font-medium">Status</th>
-              <th className="text-left p-3 font-medium">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((u: any) => (
-              <tr key={u.id} className="border-t">
-                <td className="p-3">
-                  {u.first_name} {u.last_name}
-                  {currentUserId === u.id && (
-                    <span
-                      className="ml-2 align-middle text-[10px] px-1.5 py-0.5 rounded border border-muted-foreground/30 text-muted-foreground"
-                    >
-                      logged in user
-                    </span>
-                  )}
-                </td>
-                <td className="p-3 text-muted-foreground">{u.email}</td>
-                <td className="p-3 capitalize">{u.is_active ? 'active' : 'disabled'}</td>
-                <td className="p-3">
-                  <ToggleActiveButton resource="users" id={u.id} isActive={u.is_active} currentUserId={currentUserId} />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <PageHeader
+        title="Users"
+        description="Manage application users and roles."
+      />
+      <Suspense fallback={<div className="h-96 animate-pulse bg-muted rounded-md" />}>
+        <UsersTable
+          users={users}
+          currentUserId={(me as any)?.id}
+          pagination={pagination}
+          sortBy={params.sort_by}
+          sortOrder={params.sort_order}
+        />
+      </Suspense>
     </div>
   )
 }

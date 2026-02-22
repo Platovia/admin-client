@@ -1,7 +1,16 @@
 import { serverApi } from '@/lib/server-api'
 
-async function getOverview() {
-  return serverApi('/admin/embeddings/overview')
+interface EmbeddingsOverview {
+  total_menus: number
+  menus_needing_refresh: number
+}
+
+async function getOverview(): Promise<EmbeddingsOverview | null> {
+  try {
+    return await serverApi('/admin/embeddings/overview') as EmbeddingsOverview
+  } catch {
+    return null
+  }
 }
 
 export default async function EmbeddingsPage() {

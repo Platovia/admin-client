@@ -37,7 +37,7 @@ export function ToggleActiveButton({ resource, id, isActive, currentUserId }: To
   }
 
   const isSelfUser = resource === "users" && currentUserId && currentUserId === id
-  const disabled = pending || submitting || isSelfUser
+  const disabled = pending || submitting || !!isSelfUser
 
   return (
     <button
